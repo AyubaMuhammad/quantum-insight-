@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Insight - Trading Signals</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #0cf;
+            --secondary: #7024c4;
+            --dark: #0a0e17;
+            --darker: #05080f;
+            --light: #e0f7ff;
+            --accent: #ff2a6d;
+            --profit: #00ff9d;
+            --loss: #ff2a6d;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: rgba(5, 8, 15, 0.9);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 204, 255, 0.2);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-login {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-login:hover {
+            background: rgba(0, 204, 255, 0.1);
+        }
+
+        .btn-signup {
+            background: var(--primary);
+            color: var(--dark);
+        }
+
+        .btn-signup:hover {
+            background: #00b8e6;
+            box-shadow: 0 0 15px rgba(0, 204, 255, 0.5);
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Signals Hero Section */
+        .signals-hero {
+            padding: 180px 0 100px;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .signals-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.05"><polygon fill="%230cf" points="0,1000 1000,0 1000,1000"/></svg>');
+            background-size: cover;
+        }
+
+        .signals-hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .signals-hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            color: #a0b3c0;
+        }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .floating-element {
+            position: absolute;
+            background: rgba(0, 204, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        .floating-element:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation-duration: 20s;
+        }
+
+        .floating-element:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            left: 80%;
+            animation-duration: 25s;
+        }
+
+        .floating-element:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            top: 80%;
+            left: 20%;
+            animation-duration: 15s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            100% {
+                transform: translate(100px, -100px) rotate(360deg);
+            }
+        }
+
+        /* Signals Benefits */
+        .signals-benefits {
+            padding: 100px 0;
+            background: var(--darker);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-title p {
+            color: #a0b3c0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .benefit-card {
+            background: rgba(10, 14, 23, 0.7);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 204, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 204, 255, 0.05) 0%, rgba(112, 36, 196, 0.05) 100%);
+            z-index: -1;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(0, 204, 255, 0.3);
+        }
+
+        .benefit-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .benefit-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .benefit-card p {
+            color: #a0b3c0;
+        }
+
+        /* Live Signals Section */
+        .live-signals {
+            padding: 100px 0;
+            background: var(--dark);
+        }
+
+        .signals-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .signals-filter {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 25px;
+            background: rgba(10, 14, 23, 0.7);
+            border: 1px solid rgba(0, 204, 255, 0.2);
+            color: var(--light);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary);
+            color: var(--dark);
+            box-shadow: 0 0 15px rgba(0, 204, 255, 0.5);
+        }
+
+        .signals-container {
+            background: rgba(10, 14, 23, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 204, 255, 0.1);
+        }
+
+        .signals-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .signals-table thead {
+            background: rgba(0, 204, 255, 0.1);
+        }
+
+        .signals-table th {
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 1px solid rgba(0, 204, 255, 0.2);
+        }
+
+        .signals-table td {
+            padding: 18px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .signals-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .signals-table tr {
+            transition: all 0.3s ease;
+        }
+
+        .signals-table tr:hover {
+            background: rgba(0, 204, 255, 0.05);
+        }
+
+        .currency-pair {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .currency-flag {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: white;
+        }
+
+        .signal-direction {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .direction-buy {
+            color: var(--profit);
+        }
+
+        .direction-sell {
+            color: var(--loss);
+        }
+
+        .signal-strength {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .strength-bar {
+            width: 60px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .strength-high .strength-fill {
+            width: 90%;
+            background: var(--profit);
+        }
+
+        .strength-medium .strength-fill {
+            width: 70%;
+            background: #f59e0b;
+        }
+
+        .strength-low .strength-fill {
+            width: 50%;
+            background: var(--loss);
+        }
+
+        .signal-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(0, 255, 157, 0.1);
+            color: var(--profit);
+            border: 1px solid var(--profit);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border: 1px solid #f59e0b;
+        }
+
+        .status-closed {
+            background: rgba(255, 255, 255, 0.1);
+            color: #a0b3c0;
+            border: 1px solid #a0b3c0;
+        }
+
+        .signal-result {
+            font-weight: 600;
+        }
+
+        .result-profit {
+            color: var(--profit);
+        }
+
+        .result-loss {
+            color: var(--loss);
+        }
+
+        /* Performance Stats */
+        .performance-stats {
+            padding: 80px 0;
+            background: var(--darker);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .stat-card {
+            background: rgba(10, 14, 23, 0.7);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 204, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 204, 255, 0.05) 0%, rgba(112, 36, 196, 0.05) 100%);
+            z-index: -1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: rgba(0, 204, 255, 0.3);
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: #a0b3c0;
+            font-size: 1.1rem;
+        }
+
+        /* Signal Plans */
+        .signal-plans {
+            padding: 100px 0;
+            background: var(--dark);
+        }
+
+        .plans-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .plan-card {
+            background: rgba(10, 14, 23, 0.7);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 204, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-card.featured {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .plan-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            background: var(--accent);
+            color: white;
+            padding: 5px 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            transform: rotate(45deg);
+        }
+
+        .plan-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 204, 255, 0.05) 0%, rgba(112, 36, 196, 0.05) 100%);
+            z-index: -1;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(0, 204, 255, 0.3);
+        }
+
+        .plan-card.featured:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+
+        .plan-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .plan-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .plan-price span {
+            font-size: 1rem;
+            color: #a0b3c0;
+        }
+
+        .plan-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            color: #a0b3c0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        .plan-features i {
+            color: var(--primary);
+        }
+
+        .btn-plan {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 5px 15px rgba(112, 36, 196, 0.4);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-plan:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(112, 36, 196, 0.6);
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.03"><polygon fill="%23ff2a6d" points="500,0 1000,500 500,1000 0,500"/></svg>');
+            background-size: cover;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cta p {
+            max-width: 700px;
+            margin: 0 auto 40px;
+            color: #a0b3c0;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 5px 15px rgba(112, 36, 196, 0.4);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(112, 36, 196, 0.6);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--darker);
+            padding: 70px 0 30px;
+            border-top: 1px solid rgba(0, 204, 255, 0.1);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #a0b3c0;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 204, 255, 0.1);
+            border-radius: 50%;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            color: var(--dark);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0b3c0;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .signals-hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .plan-card.featured {
+                transform: scale(1);
+            }
+            
+            .plan-card.featured:hover {
+                transform: translateY(-10px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links, .auth-buttons {
+                display: none;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+            
+            .signals-hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .benefits-grid, .stats-grid, .plans-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .signals-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .signals-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-atom"></i>
+                    <span>Quantum Insight</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="course.html">Courses</a>
+                    <a href="mentorship.html">Mentorship</a>
+                    <a href="signal.html" class="active">Signals</a>
+                    <a href="blog.html">Blog</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="auth-buttons">
+                    <button class="btn btn-login">Login</button>
+                    <button class="btn btn-signup">Sign Up</button>
+                </div>
+                <div class="mobile-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Signals Hero Section -->
+    <section class="signals-hero">
+        <div class="container">
+            <h1>AI-Powered Forex Trading Signals</h1>
+            <p>Receive high-probability trading signals generated by our quantum algorithms. Maximize your profits with precise entry and exit points.</p>
+            <button class="btn-primary">Get Signals Now</button>
+            <div class="floating-elements">
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Signals Benefits Section -->
+    <section class="signals-benefits">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Quantum Signals?</h2>
+                <p>Our AI-powered signals combine technical analysis, market sentiment, and quantum algorithms for unmatched accuracy.</p>
+            </div>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Our quantum algorithms analyze thousands of data points in real-time to identify high-probability trading opportunities.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Real-Time Alerts</h3>
+                    <p>Receive instant notifications via SMS, email, or mobile app when new trading signals are generated.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3>Detailed Analysis</h3>
+                    <p>Each signal includes entry price, stop loss, take profit targets, and risk-reward ratio calculations.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Risk Management</h3>
+                    <p>Every signal includes proper risk management guidelines to protect your capital.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>Performance Tracking</h3>
+                    <p>Monitor the performance of all signals with detailed analytics and historical data.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>Get assistance from our support team whenever you need help with signals or execution.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Signals Section -->
+    <section class="live-signals">
+        <div class="container">
+            <div class="section-title">
+                <h2>Live Trading Signals</h2>
+                <p>Real-time signals generated by our quantum algorithms. Updated every 5 minutes.</p>
+            </div>
+            
+            <div class="signals-header">
+                <h3>Active Signals</h3>
+                <div class="signals-filter">
+                    <button class="filter-btn active">All Pairs</button>
+                    <button class="filter-btn">Major Pairs</button>
+                    <button class="filter-btn">Minor Pairs</button>
+                    <button class="filter-btn">Exotic Pairs</button>
+                </div>
+            </div>
+            
+            <div class="signals-container">
+                <table class="signals-table">
+                    <thead>
+                        <tr>
+                            <th>Currency Pair</th>
+                            <th>Signal</th>
+                            <th>Entry Price</th>
+                            <th>Stop Loss</th>
+                            <th>Take Profit</th>
+                            <th>Strength</th>
+                            <th>Status</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="currency-pair">
+                                    <div class="currency-flag">EU</div>
+                                    <span>EUR/USD</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="signal-direction direction-buy">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>BUY</span>
+                                </div>
+                            </td>
+                            <td>1.09542</td>
+                            <td>1.09210</td>
+                            <td>1.10200</td>
+                            <td>
+                                <div class="signal-strength strength-high">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill"></div>
+                                    </div>
+                                    <span>High</span>
+                                </div>
+                            </td>
+                            <td><span class="signal-status status-active">ACTIVE</span></td>
+                            <td><span class="signal-result result-profit">+1.2%</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="currency-pair">
+                                    <div class="currency-flag">GU</div>
+                                    <span>GBP/USD</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="signal-direction direction-sell">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>SELL</span>
+                                </div>
+                            </td>
+                            <td>1.27560</td>
+                            <td>1.28000</td>
+                            <td>1.26500</td>
+                            <td>
+                                <div class="signal-strength strength-medium">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill"></div>
+                                    </div>
+                                    <span>Medium</span>
+                                </div>
+                            </td>
+                            <td><span class="signal-status status-pending">PENDING</span></td>
+                            <td><span class="signal-result">-</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="currency-pair">
+                                    <div class="currency-flag">UJ</div>
+                                    <span>USD/JPY</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="signal-direction direction-buy">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>BUY</span>
+                                </div>
+                            </td>
+                            <td>148.920</td>
+                            <td>148.500</td>
+                            <td>149.800</td>
+                            <td>
+                                <div class="signal-strength strength-high">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill"></div>
+                                    </div>
+                                    <span>High</span>
+                                </div>
+                            </td>
+                            <td><span class="signal-status status-active">ACTIVE</span></td>
+                            <td><span class="signal-result result-profit">+0.8%</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="currency-pair">
+                                    <div class="currency-flag">UC</div>
+                                    <span>USD/CAD</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="signal-direction direction-sell">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>SELL</span>
+                                </div>
+                            </td>
+                            <td>1.35210</td>
+                            <td>1.35700</td>
+                            <td>1.34500</td>
+                            <td>
+                                <div class="signal-strength strength-low">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill"></div>
+                                    </div>
+                                    <span>Low</span>
+                                </div>
+                            </td>
+                            <td><span class="signal-status status-active">ACTIVE</span></td>
+                            <td><span class="signal-result result-loss">-0.3%</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="currency-pair">
+                                    <div class="currency-flag">AU</div>
+                                    <span>AUD/USD</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="signal-direction direction-buy">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>BUY</span>
+                                </div>
+                            </td>
+                            <td>0.65890</td>
+                            <td>0.65500</td>
+                            <td>0.66500</td>
+                            <td>
+                                <div class="signal-strength strength-medium">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill"></div>
+                                    </div>
+                                    <span>Medium</span>
+                                </div>
+                            </td>
+                            <td><span class="signal-status status-closed">CLOSED</span></td>
+                            <td><span class="signal-result result-profit">+2.1%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Stats Section -->
+    <section class="performance-stats">
+        <div class="container">
+            <div class="section-title">
+                <h2>Signal Performance</h2>
+                <p>Track record of our AI-powered trading signals over the past 30 days.</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">87.5%</div>
+                    <div class="stat-label">Win Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">+342</div>
+                    <div class="stat-label">Total Pips</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">2.8:1</div>
+                    <div class="stat-label">Avg Risk/Reward</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">94%</div>
+                    <div class="stat-label">Accuracy Rate</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Signal Plans Section -->
+    <section class="signal-plans">
+        <div class="container">
+            <div class="section-title">
+                <h2>Choose Your Signal Plan</h2>
+                <p>Select the plan that fits your trading style and budget.</p>
+            </div>
+            
+            <div class="plans-container">
+                <!-- Plan 1 -->
+                <div class="plan-card">
+                    <div class="plan-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>Basic Signals</h3>
+                    <p>Perfect for beginners testing our signals</p>
+                    <div class="plan-price">$49<span>/month</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 3-5 signals per day</li>
+                        <li><i class="fas fa-check"></i> Major currency pairs only</li>
+                        <li><i class="fas fa-check"></i> Email notifications</li>
+                        <li><i class="fas fa-check"></i> Basic signal details</li>
+                        <li><i class="fas fa-times"></i> SMS alerts</li>
+                        <li><i class="fas fa-times"></i> Mobile app access</li>
+                        <li><i class="fas fa-times"></i> Premium pairs</li>
+                    </ul>
+                    <button class="btn-plan">Get Started</button>
+                </div>
+                
+                <!-- Plan 2 -->
+                <div class="plan-card featured">
+                    <div class="plan-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3>Pro Signals</h3>
+                    <p>Our most popular plan for active traders</p>
+                    <div class="plan-price">$99<span>/month</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 5-8 signals per day</li>
+                        <li><i class="fas fa-check"></i> All major & minor pairs</li>
+                        <li><i class="fas fa-check"></i> Email & SMS notifications</li>
+                        <li><i class="fas fa-check"></i> Detailed analysis</li>
+                        <li><i class="fas fa-check"></i> Mobile app access</li>
+                        <li><i class="fas fa-check"></i> Risk management guidance</li>
+                        <li><i class="fas fa-times"></i> Exotic pairs</li>
+                    </ul>
+                    <button class="btn-plan">Get Started</button>
+                </div>
+                
+                <!-- Plan 3 -->
+                <div class="plan-card">
+                    <div class="plan-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h3>Elite Signals</h3>
+                    <p>Complete access for professional traders</p>
+                    <div class="plan-price">$199<span>/month</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 8-12 signals per day</li>
+                        <li><i class="fas fa-check"></i> All currency pairs</li>
+                        <li><i class="fas fa-check"></i> All notification methods</li>
+                        <li><i class="fas fa-check"></i> Advanced analysis</li>
+                        <li><i class="fas fa-check"></i> Priority mobile access</li>
+                        <li><i class="fas fa-check"></i> Personal support</li>
+                        <li><i class="fas fa-check"></i> Early signal access</li>
+                    </ul>
+                    <button class="btn-plan">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Start Profiting With Quantum Signals Today</h2>
+            <p>Join thousands of traders who are already using our AI-powered signals to maximize their trading profits.</p>
+            <button class="btn-primary">Get Started Now</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Quantum Insight</h3>
+                    <p>Master the forex market with our cutting-edge educational platform and trading tools.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Courses</a></li>
+                        <li><a href="#">Mentorship</a></li>
+                        <li><a href="#">Signals</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Forex Basics</a></li>
+                        <li><a href="#">Trading Strategies</a></li>
+                        <li><a href="#">Market Analysis</a></li>
+                        <li><a href="#">Risk Management</a></li>
+                        <li><a href="#">Glossary</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> support@quantuminsight.com</li>
+                        li><i class="fas fa-phone"></i> +234 (901) 1268-035</li>
+                        <li><i class="fas fa-map-marker-alt"></i> FCT- ABUJA</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Quantum Insight. All rights reserved. | Forex trading involves substantial risk of loss.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Signal filtering functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const signalRows = document.querySelectorAll('.signals-table tbody tr');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    const filterValue = this.textContent.toLowerCase();
+                    
+                    signalRows.forEach(row => {
+                        if (filterValue === 'all pairs') {
+                            row.style.display = 'table-row';
+                        } else {
+                            const pairCell = row.querySelector('.currency-pair span').textContent;
+                            if (filterValue === 'major pairs' && 
+                                (pairCell.includes('EUR/USD') || pairCell.includes('GBP/USD') || 
+                                 pairCell.includes('USD/JPY') || pairCell.includes('USD/CHF') ||
+                                 pairCell.includes('AUD/USD') || pairCell.includes('USD/CAD') ||
+                                 pairCell.includes('NZD/USD'))) {
+                                row.style.display = 'table-row';
+                            } else if (filterValue === 'minor pairs' && 
+                                      !pairCell.includes('USD') && !pairCell.includes('JPY') &&
+                                      !pairCell.includes('EUR') && !pairCell.includes('GBP') &&
+                                      !pairCell.includes('CHF') && !pairCell.includes('AUD') &&
+                                      !pairCell.includes('CAD') && !pairCell.includes('NZD')) {
+                                row.style.display = 'table-row';
+                            } else if (filterValue === 'exotic pairs') {
+                                // For demo purposes, show all rows for exotic
+                                row.style.display = 'table-row';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        }
+                    });
+                });
+            });
+            
+            // Mobile menu toggle
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const navLinks = document.querySelector('.nav-links');
+            const authButtons = document.querySelector('.auth-buttons');
+            
+            mobileMenu.addEventListener('click', function() {
+                navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+                authButtons.style.display = authButtons.style.display === 'flex' ? 'none' : 'flex';
+                
+                if (navLinks.style.display === 'flex') {
+                    navLinks.style.flexDirection = 'column';
+                    navLinks.style.position = 'absolute';
+                    navLinks.style.top = '100%';
+                    navLinks.style.left = '0';
+                    navLinks.style.width = '100%';
+                    navLinks.style.background = 'var(--darker)';
+                    navLinks.style.padding = '20px';
+                    navLinks.style.gap = '15px';
+                    
+                    authButtons.style.flexDirection = 'column';
+                    authButtons.style.position = 'absolute';
+                    authButtons.style.top = 'calc(100% + 180px)';
+                    authButtons.style.left = '0';
+                    authButtons.style.width = '100%';
+                    authButtons.style.background = 'var(--darker)';
+                    authButtons.style.padding = '20px';
+                    authButtons.style.gap = '15px';
+                }
+            });
+            
+            // Simulate live signal updates
+            function updateSignalPrices() {
+                const activeSignals = document.querySelectorAll('.signals-table tbody tr .signal-status.status-active');
+                
+                activeSignals.forEach(signal => {
+                    const row = signal.closest('tr');
+                    const resultCell = row.querySelector('.signal-result');
+                    
+                    if (resultCell && !resultCell.classList.contains('result-loss')) {
+                        // Randomly update profit/loss for demo
+                        const currentValue = parseFloat(resultCell.textContent);
+                        const randomChange = (Math.random() * 0.5) - 0.1;
+                        const newValue = Math.max(-2, Math.min(5, currentValue + randomChange));
+                        
+                        if (newValue >= 0) {
+                            resultCell.textContent = `+${newValue.toFixed(1)}%`;
+                            resultCell.className = 'signal-result result-profit';
+                        } else {
+                            resultCell.textContent = `${newValue.toFixed(1)}%`;
+                            resultCell.className = 'signal-result result-loss';
+                        }
+                    }
+                });
+            }
+            
+            // Update prices every 10 seconds for demo
+            setInterval(updateSignalPrices, 10000);
+        });
+    </script>
+</body>
+</html>
